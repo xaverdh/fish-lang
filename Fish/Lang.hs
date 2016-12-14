@@ -1,20 +1,21 @@
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFunctor, DeriveGeneric #-}
 module Fish.Lang where
 
 import qualified Data.Text as T
 import qualified Data.List.NonEmpty as N
 import Data.Bifunctor
+import GHC.Generics
 
 -- | The type of string data, currently 'T.Text'.
-type S = T.Text
+type Str = T.Text
 
 -- | A fish program, consisting of several (composite) statements.
 data Prog t = Prog t [CompStmt t]
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A list of arguments, belonging to a command.
 data Args t = Args t [Expr t]
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A composite statement.
 data CompStmt t =
@@ -24,10 +25,10 @@ data CompStmt t =
   -- ^ A pipe connecting a simple statement and a composite statement
   | Forked t (Stmt t)
   -- ^ A forked statement
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 data Stmt t = 
-  CommentSt t S
+  CommentSt t Str
   -- ^ A /comment/
   | CmdSt t (CmdIdent t) (Args t)
   -- ^ A /shell command/, has an identifier and arguments
@@ -53,10 +54,10 @@ data Stmt t =
   -- ^ /not/ statement modifier
   | RedirectedSt t (Stmt t) (N.NonEmpty (Redirect t))
   -- ^ A 'Stmt', annotated with redirections
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 data Expr t =
-  StringE t S
+  StringE t Str
   -- ^ String expressions, can be \"..\"-type, \'..\'-type or plain strings.
   | GlobE t Glob
   -- ^ Glob patterns.
@@ -73,7 +74,7 @@ data Expr t =
   -- ^ Command substitution,, i.e. (..).
   | ConcatE t (Expr t) (Expr t)
   -- ^ One expression following the other without seperating whitespace.
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 data SetCommand t = 
   SetSetting (Maybe Scope) (Maybe Export) (VarDef t) (Args t)
@@ -85,43 +86,43 @@ data SetCommand t =
   -- ^ The /set/ builtin command in query mode
   | SetErase (Maybe Scope) (Args t)
   -- ^ The /set/ builtin command in erase mode
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Export flag.
 data Export = Export | UnExport
-  deriving (Eq,Ord,Show,Bounded,Enum)
+  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | A variable scope.
 data Scope = 
   ScopeLocal
   | ScopeGlobal
   | ScopeUniversal
-  deriving (Eq,Ord,Show,Bounded,Enum)
+  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | Glob pattern, can be one of * ** ?
 data Glob = 
   StarGl
   | DiStarGl
   | QMarkGl
-  deriving (Eq,Ord,Show,Bounded,Enum)
+  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | Variable identifiers
-data VarIdent t = VarIdent t S
-  deriving (Eq,Ord,Show,Functor)
+data VarIdent t = VarIdent t Str
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Function identifiers
-data FunIdent t = FunIdent t S
-  deriving (Eq,Ord,Show,Functor)
+data FunIdent t = FunIdent t Str
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Command name identifiers
-data CmdIdent t = CmdIdent t S
-  deriving (Eq,Ord,Show,Functor)
+data CmdIdent t = CmdIdent t Str
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A unix file descriptor from 0 to 9
 data Fd =
     Fd0 | Fd1 | Fd2 | Fd3 | Fd4
   | Fd5 | Fd6 | Fd7 | Fd8 | Fd9
-  deriving (Eq,Ord,Show,Bounded,Enum)
+  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | Type of a redirection, the first file descriptor
 --   is the fd being redirected, the second part is
@@ -134,7 +135,7 @@ data Redirect t =
   RedirectClose Fd
   | RedirectIn Fd ( Either Fd (Expr t) )
   | RedirectOut Fd ( Either Fd (FileMode,Expr t) )
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Modes for writing to a file:
 --
@@ -142,13 +143,13 @@ data Redirect t =
 --   * 'FModeApp'    : append to existing file
 --   * 'FModeNoClob' : refuse to write to existing file
 data FileMode = FModeWrite | FModeApp | FModeNoClob
-  deriving (Eq,Ord,Show,Bounded,Enum)
+  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
   
 
 -- | An Index from an [..] index expression.
 --   Can be either a single index or an index range.
 data Indexing i = Index i | Range i i
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | An optional index expression, consisting
 --   of a list of indices / index ranges.
@@ -164,7 +165,7 @@ type Ref i = Maybe [Indexing i]
 data VarRef t = VarRef t
   ( Either (VarRef t) (VarIdent t) )
   ( Ref (Expr t) )
-  deriving (Eq,Ord,Show)
+  deriving (Eq,Ord,Show,Generic)
 
 instance Functor VarRef where
   fmap f (VarRef t a b) = 
@@ -180,11 +181,11 @@ instance Functor VarRef where
 data VarDef t = VarDef t
   ( VarIdent t )
   ( Ref (Expr t) )
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A command reference, given by a piece of fish code and
 --   an optional index expression.
 data CmdRef t = CmdRef t (Prog t) (Ref (Expr t))
-  deriving (Eq,Ord,Show,Functor)
+  deriving (Eq,Ord,Show,Functor,Generic)
 
 
