@@ -1,16 +1,13 @@
-{-# language StandaloneDeriving, DeriveGeneric #-}
 module Fish.Pretty where
 
 import Fish.Lang
 import Text.PrettyPrint.GenericPretty
 import GHC.Generics
 
-import Data.Text as T
-import Data.Text.Internal
-import Data.List.NonEmpty
-import Data.Text.Array
+import qualified Data.Text as T
+import qualified Data.List.NonEmpty as N
 
-instance Out a => Out (NonEmpty a)
+instance Out a => Out (N.NonEmpty a)
 instance Out t => Out (Prog t)
 instance Out t => Out (Args t)
 instance Out t => Out (CompStmt t)
@@ -31,7 +28,7 @@ instance Out Export
 instance Out Scope
 instance Out Glob
 
-instance Out Text where
+instance Out T.Text where
   doc = doc . T.unpack
   docPrec i = docPrec i . T.unpack
 

@@ -12,9 +12,9 @@ extra-source-files:  ChangeLog.md, README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Fish.Lang
+  exposed-modules:     Fish.Lang, Fish.Pretty
   -- other-modules:       
   other-extensions:    DeriveFunctor
-  build-depends:       base >=4.9 && <4.10, text >=1.2 && <1.3
+  build-depends:       base >=4.9 && <4.10, text >=1.2 && <1.3, GenericPretty >= 1.2.1 && < 1.3
   default-language:    Haskell2010
   
