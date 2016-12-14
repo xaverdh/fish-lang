@@ -1,0 +1,20 @@
+name:                fish-lang
+version:             0.1.0.0
+synopsis:            AST for the fish (and hfish) language
+-- description:         
+license:             MIT
+license-file:        LICENSE
+-- author:              
+-- maintainer:          
+category:            Language
+build-type:          Simple
+extra-source-files:  ChangeLog.md, README.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Fish.Lang
+  -- other-modules:       
+  other-extensions:    DeriveFunctor
+  build-depends:       base >=4.9 && <4.10, text >=1.2 && <1.3
+  default-language:    Haskell2010
+  
