@@ -84,7 +84,7 @@ data SetCommand t =
   --   boolean corresponds to the "-n" flag.
   | SetQuery (Maybe Scope) (Maybe Export) (Args t)
   -- ^ The /set/ builtin command in query mode
-  | SetErase (Maybe Scope) (Args t)
+  | SetErase (Maybe Scope) (N.NonEmpty (VarDef t))
   -- ^ The /set/ builtin command in erase mode
   deriving (Eq,Ord,Show,Functor,Generic)
 
