@@ -1,13 +1,13 @@
 {-# LANGUAGE DeriveFunctor, DeriveGeneric #-}
 module Fish.Lang where
 
-import qualified Data.Text as T
+import qualified Data.ByteString as B
 import qualified Data.List.NonEmpty as N
 import Data.Bifunctor
 import GHC.Generics
 
--- | The type of string data, currently 'T.Text'.
-type Str = T.Text
+-- | The type of string data, currently 'B.ByteString'.
+type Str = B.ByteString
 
 -- | A fish program, consisting of several (composite) statements.
 data Prog t = Prog t [CompStmt t]
