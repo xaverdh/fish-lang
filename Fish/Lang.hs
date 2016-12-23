@@ -174,7 +174,7 @@ instance Functor (VarRef s) where
 --
 --   The only difference from 'VarRef'
 --   is that the name must be a statically known identifier.
-data VarDef s t = VarDef s t
+data VarDef s t = VarDef t
   ( VarIdent s t )
   ( Ref (Expr s t) )
   deriving (Eq,Ord,Show,Functor,Generic)
