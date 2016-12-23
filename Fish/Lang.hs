@@ -1,90 +1,86 @@
 {-# LANGUAGE DeriveFunctor, DeriveGeneric #-}
 module Fish.Lang where
 
-import qualified Data.Text as T
 import qualified Data.List.NonEmpty as N
 import Data.Bifunctor
 import GHC.Generics
 
--- | The type of string data, currently 'T.Text'.
-type Str = T.Text
-
 -- | A fish program, consisting of several (composite) statements.
-data Prog t = Prog t [CompStmt t]
+data Prog s t = Prog t [CompStmt s t]
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A list of arguments, belonging to a command.
-data Args t = Args t [Expr t]
+data Args s t = Args t [Expr s t]
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A composite statement.
-data CompStmt t =
-  Simple t (Stmt t)
+data CompStmt s t =
+  Simple t (Stmt s t)
   -- ^ Wraps a simple statement
-  | Piped t Fd (Stmt t) (CompStmt t)
+  | Piped t Fd (Stmt s t) (CompStmt s t)
   -- ^ A pipe connecting a simple statement and a composite statement
-  | Forked t (Stmt t)
+  | Forked t (Stmt s t)
   -- ^ A forked statement
   deriving (Eq,Ord,Show,Functor,Generic)
 
-data Stmt t = 
-  CommentSt t Str
+data Stmt s t = 
+  CommentSt t s
   -- ^ A /comment/
-  | CmdSt t (CmdIdent t) (Args t)
+  | CmdSt t (CmdIdent s t) (Args s t)
   -- ^ A /shell command/, has an identifier and arguments
-  | SetSt t (SetCommand t)
+  | SetSt t (SetCommand s t)
   -- ^ The /set/ builtin command
-  | FunctionSt t (FunIdent t) (Args t) (Prog t)
+  | FunctionSt t (FunIdent s t) (Args s t) (Prog s t)
   -- ^ The /function/ builtin command
-  | WhileSt t (Stmt t) (Prog t)
+  | WhileSt t (Stmt s t) (Prog s t)
   -- ^ /while/ loops
-  | ForSt t (VarIdent t) (Args t) (Prog t)
+  | ForSt t (VarIdent s t) (Args s t) (Prog s t)
   -- ^ /for/ loops
-  | IfSt t (N.NonEmpty (Stmt t,Prog t)) (Maybe (Prog t))
+  | IfSt t (N.NonEmpty (Stmt s t,Prog s t)) (Maybe (Prog s t))
   -- ^ /if/ statements
-  | SwitchSt t (Expr t) (N.NonEmpty (Expr t,Prog t))
+  | SwitchSt t (Expr s t) (N.NonEmpty (Expr s t,Prog s t))
   -- ^ /switch/ statements
-  | BeginSt t (Prog t)
+  | BeginSt t (Prog s t)
   -- ^ /begin/ statements
-  | AndSt t (Stmt t)
+  | AndSt t (Stmt s t)
   -- ^ /and/ statement modifier
-  | OrSt t (Stmt t)
+  | OrSt t (Stmt s t)
   -- ^ /or/ statement modifier
-  | NotSt t (Stmt t)
+  | NotSt t (Stmt s t)
   -- ^ /not/ statement modifier
-  | RedirectedSt t (Stmt t) (N.NonEmpty (Redirect t))
+  | RedirectedSt t (Stmt s t) (N.NonEmpty (Redirect s t))
   -- ^ A 'Stmt', annotated with redirections
   deriving (Eq,Ord,Show,Functor,Generic)
 
-data Expr t =
-  StringE t Str
+data Expr s t =
+  StringE t s
   -- ^ String expressions, can be \"..\"-type, \'..\'-type or plain strings.
   | GlobE t Glob
   -- ^ Glob patterns.
-  | ProcE t (Expr t)
+  | ProcE t (Expr s t)
   -- ^ Process expansion, i.e. %last .
   | HomeDirE t
   -- ^ Home directory expansion, i.e. ~ .
-  | VarRefE t Bool (VarRef t)
+  | VarRefE t Bool (VarRef s t)
   -- ^ Variable references, i.e. $a. The boolean
   -- keeps track of whether the variable occured in \"\"-quotes.
-  | BracesE t [Expr t]
+  | BracesE t [Expr s t]
   -- ^ Braces expansion, i.e. {..}.
-  | CmdSubstE t (CmdRef t)
+  | CmdSubstE t (CmdRef s t)
   -- ^ Command substitution,, i.e. (..).
-  | ConcatE t (Expr t) (Expr t)
+  | ConcatE t (Expr s t) (Expr s t)
   -- ^ One expression following the other without seperating whitespace.
   deriving (Eq,Ord,Show,Functor,Generic)
 
-data SetCommand t = 
-  SetSetting (Maybe Scope) (Maybe Export) (VarDef t) (Args t)
+data SetCommand s t = 
+  SetSetting (Maybe Scope) (Maybe Export) (VarDef s t) (Args s t)
   -- ^ The /set/ builtin command in setting mode
   | SetList (Maybe Scope) (Maybe Export) Bool
   -- ^ The /set/ builtin command in list mode,
   --   boolean corresponds to the "-n" flag.
-  | SetQuery (Maybe Scope) (Maybe Export) (Args t)
+  | SetQuery (Maybe Scope) (Maybe Export) (Args s t)
   -- ^ The /set/ builtin command in query mode
-  | SetErase (Maybe Scope) (N.NonEmpty (VarDef t))
+  | SetErase (Maybe Scope) (N.NonEmpty (VarDef s t))
   -- ^ The /set/ builtin command in erase mode
   deriving (Eq,Ord,Show,Functor,Generic)
 
@@ -107,15 +103,15 @@ data Glob =
   deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | Variable identifiers
-data VarIdent t = VarIdent t Str
+data VarIdent s t = VarIdent t s
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Function identifiers
-data FunIdent t = FunIdent t Str
+data FunIdent s t = FunIdent t s
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Command name identifiers
-data CmdIdent t = CmdIdent t Str
+data CmdIdent s t = CmdIdent t s
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A unix file descriptor from 0 to 9
@@ -131,10 +127,10 @@ data Fd =
 --   It can be either another fd or a file,
 --   in which case the boolean tells us whether it should
 --   be overwritten (False) or appended to (True).
-data Redirect t = 
+data Redirect s t = 
   RedirectClose Fd
-  | RedirectIn Fd ( Either Fd (Expr t) )
-  | RedirectOut Fd ( Either Fd (FileMode,Expr t) )
+  | RedirectIn Fd ( Either Fd (Expr s t) )
+  | RedirectOut Fd ( Either Fd (FileMode,Expr s t) )
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Modes for writing to a file:
@@ -162,12 +158,12 @@ type Ref i = Maybe [Indexing i]
 --   * a variable identifier
 --
 --   potentially followed by an index expression.
-data VarRef t = VarRef t
-  ( Either (VarRef t) (VarIdent t) )
-  ( Ref (Expr t) )
+data VarRef s t = VarRef t
+  ( Either (VarRef s t) (VarIdent s t) )
+  ( Ref (Expr s t) )
   deriving (Eq,Ord,Show,Generic)
 
-instance Functor VarRef where
+instance Functor (VarRef s) where
   fmap f (VarRef t a b) = 
     VarRef (f t)
     ( bimap (fmap f) (fmap f) a )
@@ -178,14 +174,14 @@ instance Functor VarRef where
 --
 --   The only difference from 'VarRef'
 --   is that the name must be a statically known identifier.
-data VarDef t = VarDef t
-  ( VarIdent t )
-  ( Ref (Expr t) )
+data VarDef s t = VarDef s t
+  ( VarIdent s t )
+  ( Ref (Expr s t) )
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A command reference, given by a piece of fish code and
 --   an optional index expression.
-data CmdRef t = CmdRef t (Prog t) (Ref (Expr t))
+data CmdRef s t = CmdRef t (Prog s t) (Ref (Expr s t))
   deriving (Eq,Ord,Show,Functor,Generic)
 
 

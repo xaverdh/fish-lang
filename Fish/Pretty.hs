@@ -4,8 +4,10 @@ import Fish.Lang
 import Text.PrettyPrint.GenericPretty
 import GHC.Generics
 
-import qualified Data.Text as T
 import qualified Data.List.NonEmpty as N
+import qualified Data.Text as T
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
 
 instance Out a => Out (N.NonEmpty a)
 instance Out t => Out (Prog t)
@@ -31,6 +33,10 @@ instance Out Glob
 instance Out T.Text where
   doc = doc . T.unpack
   docPrec i = docPrec i . T.unpack
+
+instance Out B.ByteString where
+  doc = doc . BC.unpack
+  docPrec i = docPrec i . BC.unpack
 
 
 
