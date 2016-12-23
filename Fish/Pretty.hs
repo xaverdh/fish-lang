@@ -10,20 +10,20 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 
 instance Out a => Out (N.NonEmpty a)
-instance Out t => Out (Prog t)
-instance Out t => Out (Args t)
-instance Out t => Out (CompStmt t)
-instance Out t => Out (Stmt t)
-instance Out t => Out (Expr t)
-instance Out t => Out (SetCommand t)
-instance Out t => Out (VarIdent t)
-instance Out t => Out (FunIdent t)
-instance Out t => Out (CmdIdent t)
-instance Out t => Out (Redirect t)
+instance (Out s,Out t) => Out (Prog s t)
+instance (Out s,Out t) => Out (Args s t)
+instance (Out s,Out t) => Out (CompStmt s t)
+instance (Out s,Out t) => Out (Stmt s t)
+instance (Out s,Out t) => Out (Expr s t)
+instance (Out s,Out t) => Out (SetCommand s t)
+instance (Out s,Out t) => Out (VarIdent s t)
+instance (Out s,Out t) => Out (FunIdent s t)
+instance (Out s,Out t) => Out (CmdIdent s t)
+instance (Out s,Out t) => Out (Redirect s t)
 instance Out i => Out (Indexing i)
-instance Out t => Out (VarRef t)
-instance Out t => Out (VarDef t)
-instance Out t => Out (CmdRef t)
+instance (Out s,Out t) => Out (VarRef s t)
+instance (Out s,Out t) => Out (VarDef s t)
+instance (Out s,Out t) => Out (CmdRef s t)
 instance Out FileMode
 instance Out Fd
 instance Out Export
