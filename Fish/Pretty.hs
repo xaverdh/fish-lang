@@ -1,6 +1,7 @@
 module Fish.Pretty where
 
 import Fish.Lang
+import Data.NText
 import Text.PrettyPrint.GenericPretty
 import GHC.Generics
 
@@ -39,4 +40,6 @@ instance Out B.ByteString where
   docPrec i = docPrec i . BC.unpack
 
 
-
+instance Out NText where
+  doc = doc . extractText
+  docPrec i = docPrec i . extractText

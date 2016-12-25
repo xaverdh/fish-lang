@@ -2,6 +2,7 @@
 module Fish.Lang where
 
 import qualified Data.List.NonEmpty as N
+import Data.NText
 import Data.Bifunctor
 import GHC.Generics
 
@@ -103,15 +104,15 @@ data Glob =
   deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | Variable identifiers
-data VarIdent s t = VarIdent t s
+data VarIdent s t = VarIdent t NText
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Function identifiers
-data FunIdent s t = FunIdent t s
+data FunIdent s t = FunIdent t NText
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Command name identifiers
-data CmdIdent s t = CmdIdent t s
+data CmdIdent s t = CmdIdent t NText
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | A unix file descriptor from 0 to 9
