@@ -2,6 +2,7 @@
 module Fish.Lang where
 
 import qualified Data.List.NonEmpty as N
+import qualified Data.Text as T
 import Data.NText
 import Data.Bifunctor
 import GHC.Generics
@@ -25,7 +26,7 @@ data CompStmt s t =
   deriving (Eq,Ord,Show,Functor,Generic)
 
 data Stmt s t = 
-  CommentSt t s
+  CommentSt t T.Text
   -- ^ A /comment/
   | CmdSt t (CmdIdent s t) (Args s t)
   -- ^ A /shell command/, has an identifier and arguments
