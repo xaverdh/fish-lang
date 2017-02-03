@@ -84,6 +84,8 @@ data SetCommand s t =
   -- ^ The /set/ builtin command in query mode
   | SetErase (Maybe Scope) (N.NonEmpty (VarDef s t))
   -- ^ The /set/ builtin command in erase mode
+  | SetHelp
+  -- ^ The /set/ builtin command in help mode
   deriving (Eq,Ord,Show,Functor,Generic)
 
 -- | Export flag.
