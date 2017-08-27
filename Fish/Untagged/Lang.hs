@@ -1,6 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses, DeriveGeneric, FunctionalDependencies #-}
 module Fish.Untagged.Lang
   ( module Fish.Lang.Prim
+  , RemovableTags(..)
   , Prog(..)
   , Args(..)
   , CompStmt(..)
