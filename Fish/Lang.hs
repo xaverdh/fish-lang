@@ -1,5 +1,20 @@
 {-# LANGUAGE DeriveFunctor, DeriveGeneric #-}
-module Fish.Lang where
+module Fish.Lang
+  ( module Fish.Lang.Prim
+  , Prog
+  , Args
+  , CompStmt
+  , Stmt
+  , Expr
+  , SetCommand
+  , VarIdent
+  , FunIdent
+  , CmdIdent
+  , Redirect
+  , VarRef
+  , VarDef
+  , CmdRef )
+where
 
 import qualified Data.List.NonEmpty as N
 import qualified Data.Text as T
