@@ -12,7 +12,7 @@ extra-source-files:  ChangeLog.md, README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Fish.Lang, Fish.Pretty
+  exposed-modules:     Fish.Lang, Fish.Lang.Pretty, Fish.Lang.Prim, Fish.Lang.Prim.Pretty, Fish.Untagged.Lang, Fish.Untagged.Pretty
   -- other-modules:       
   other-extensions:    DeriveFunctor, DeriveGeneric
   build-depends:       base >=4.9 && <4.10
