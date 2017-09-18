@@ -86,7 +86,7 @@ pattern NotStB stmt <- NotSt _ stmt
   where NotStB stmt = NotSt void stmt
 
 pattern RedirectedStB :: Stmt s Base
-  -> N.NonEmpty (Redirect s Base) -> Stmt s Base
+  -> N.NonEmpty (Redirect (Expr s Base)) -> Stmt s Base
 pattern RedirectedStB stmt redirects <-
   RedirectedSt _ stmt redirects
   where
