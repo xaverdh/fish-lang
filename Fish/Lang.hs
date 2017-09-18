@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveFunctor, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, TypeFamilies, ConstraintKinds #-}
+{-# LANGUAGE FlexibleContexts, StandaloneDeriving #-}
 module Fish.Lang
   ( module Fish.Lang.Prim
   , Prog(..)
@@ -13,7 +14,40 @@ module Fish.Lang
   , Redirect(..)
   , VarRef(..)
   , VarDef(..)
-  , CmdRef(..) )
+  , CmdRef(..)
+  , ForallX(..)
+  , XProg
+  , XArgs
+  , XSimple
+  , XPiped
+  , XForked
+  , XCommentSt
+  , XCmdSt
+  , XSetSt
+  , XFunctionSt
+  , XWhileSt
+  , XForSt
+  , XIfSt
+  , XSwitchSt
+  , XBeginSt
+  , XAndSt
+  , XOrSt
+  , XNotSt
+  , XRedirectedSt
+  , XStringE
+  , XGlobE
+  , XProcE
+  , XHomeDirE
+  , XVarRefE
+  , XBracesE
+  , XCmdSubstE
+  , XConcatE
+  , XVarIdent
+  , XFunIdent
+  , XCmdIdent
+  , XVarRef
+  , XVarDef
+  , XCmdRef )
 where
 
 import qualified Data.List.NonEmpty as N
@@ -21,75 +55,125 @@ import qualified Data.Text as T
 import Data.NText
 import Data.Bifunctor
 import GHC.Generics
+import GHC.Types (Constraint)
 
 import Fish.Lang.Prim
 
--- | A fish program, consisting of several (composite) statements.
-data Prog s t = Prog t [CompStmt s t]
-  deriving (Eq,Ord,Show,Functor,Generic)
+
+type ForallX (f :: * -> Constraint) t =
+  ( f (XProg t), f (XArgs t), f (XSimple t)
+  , f (XPiped t), f (XForked t), f (XCommentSt t)
+  , f (XCmdSt t), f (XSetSt t), f (XFunctionSt t)
+  , f (XWhileSt t), f (XForSt t), f (XIfSt t)
+  , f (XSwitchSt t), f (XBeginSt t), f (XAndSt t)
+  , f (XOrSt t), f (XNotSt t), f (XRedirectedSt t)
+  , f (XStringE t), f (XGlobE t), f (XProcE t)
+  , f (XHomeDirE t), f (XVarRefE t), f (XBracesE t)
+  , f (XCmdSubstE t), f (XConcatE t), f (XVarIdent t)
+  , f (XFunIdent t), f (XCmdIdent t), f (XVarRef t)
+  , f (XVarDef t), f (XCmdRef t) )
+
+data Prog s t = Prog (XProg t) [CompStmt s t]
+  deriving (Generic)
+
+type family XProg t
 
 -- | A list of arguments, belonging to a command.
-data Args s t = Args t [Expr s t]
-  deriving (Eq,Ord,Show,Functor,Generic)
+data Args s t = Args (XArgs t) [Expr s t]
+  deriving (Generic)
+
+type family XArgs t
 
 -- | A composite statement.
 data CompStmt s t =
-  Simple t (Stmt s t)
+  Simple (XSimple t) (Stmt s t)
   -- ^ Wraps a simple statement
-  | Piped t Fd (Stmt s t) (CompStmt s t)
+  | Piped (XPiped t) Fd (Stmt s t) (CompStmt s t)
   -- ^ A pipe connecting a simple statement and a composite statement
-  | Forked t (Stmt s t)
+  | Forked (XForked t) (Stmt s t)
   -- ^ A forked statement
-  deriving (Eq,Ord,Show,Functor,Generic)
+  deriving (Generic)
+
+type family XSimple t
+type family XPiped t
+type family XForked t
+
 
 data Stmt s t = 
-  CommentSt t T.Text
+  CommentSt (XCommentSt t) T.Text
   -- ^ A /comment/
-  | CmdSt t (CmdIdent s t) (Args s t)
+  | CmdSt (XCmdSt t) (CmdIdent s t) (Args s t)
   -- ^ A /shell command/, has an identifier and arguments
-  | SetSt t (SetCommand s t)
+  | SetSt (XSetSt t) (SetCommand s t)
   -- ^ The /set/ builtin command
-  | FunctionSt t (FunIdent s t) (Args s t) (Prog s t)
+  | FunctionSt (XFunctionSt t) (FunIdent s t) (Args s t) (Prog s t)
   -- ^ The /function/ builtin command
-  | WhileSt t (Stmt s t) (Prog s t)
+  | WhileSt (XWhileSt t) (Stmt s t) (Prog s t)
   -- ^ /while/ loops
-  | ForSt t (VarIdent s t) (Args s t) (Prog s t)
+  | ForSt (XForSt t) (VarIdent s t) (Args s t) (Prog s t)
   -- ^ /for/ loops
-  | IfSt t (N.NonEmpty (Stmt s t,Prog s t)) (Maybe (Prog s t))
+  | IfSt (XIfSt t) ( N.NonEmpty (Stmt s t,Prog s t) )
+                   ( Maybe (Prog s t) )
   -- ^ /if/ statements
-  | SwitchSt t (Expr s t) (N.NonEmpty (Expr s t,Prog s t))
+  | SwitchSt (XSwitchSt t) (Expr s t)
+             ( N.NonEmpty (Expr s t,Prog s t) )
   -- ^ /switch/ statements
-  | BeginSt t (Prog s t)
+  | BeginSt (XBeginSt t) (Prog s t)
   -- ^ /begin/ statements
-  | AndSt t (Stmt s t)
+  | AndSt (XAndSt t) (Stmt s t)
   -- ^ /and/ statement modifier
-  | OrSt t (Stmt s t)
+  | OrSt (XOrSt t) (Stmt s t)
   -- ^ /or/ statement modifier
-  | NotSt t (Stmt s t)
+  | NotSt (XNotSt t) (Stmt s t)
   -- ^ /not/ statement modifier
-  | RedirectedSt t (Stmt s t) (N.NonEmpty (Redirect s t))
+  | RedirectedSt (XRedirectedSt t) (Stmt s t)
+                 ( N.NonEmpty (Redirect s t) )
   -- ^ A 'Stmt', annotated with redirections
-  deriving (Eq,Ord,Show,Functor,Generic)
+  deriving (Generic)
+
+type family XCommentSt t
+type family XCmdSt t
+type family XSetSt t
+type family XFunctionSt t
+type family XWhileSt t
+type family XForSt t
+type family XIfSt t
+type family XSwitchSt t
+type family XBeginSt t
+type family XAndSt t
+type family XOrSt t
+type family XNotSt t
+type family XRedirectedSt t
+
 
 data Expr s t =
-  StringE t s
+  StringE (XStringE t) s
   -- ^ String expressions, can be \"..\"-type, \'..\'-type or plain strings.
-  | GlobE t Glob
+  | GlobE (XGlobE t) Glob
   -- ^ Glob patterns.
-  | ProcE t (Expr s t)
+  | ProcE (XProcE t) (Expr s t)
   -- ^ Process expansion, i.e. %last .
-  | HomeDirE t
+  | HomeDirE (XHomeDirE t)
   -- ^ Home directory expansion, i.e. ~ .
-  | VarRefE t Bool (VarRef s t)
+  | VarRefE (XVarRefE t) Bool (VarRef s t)
   -- ^ Variable references, i.e. $a. The boolean
   -- keeps track of whether the variable occured in \"\"-quotes.
-  | BracesE t [Expr s t]
+  | BracesE (XBracesE t) [Expr s t]
   -- ^ Braces expansion, i.e. {..}.
-  | CmdSubstE t (CmdRef s t)
+  | CmdSubstE (XCmdSubstE t) (CmdRef s t)
   -- ^ Command substitution,, i.e. (..).
-  | ConcatE t (Expr s t) (Expr s t)
+  | ConcatE (XConcatE t) (Expr s t) (Expr s t)
   -- ^ One expression following the other without seperating whitespace.
-  deriving (Eq,Ord,Show,Functor,Generic)
+  deriving (Generic)
+
+type family XStringE t
+type family XGlobE t
+type family XProcE t
+type family XHomeDirE t
+type family XVarRefE t
+type family XBracesE t
+type family XCmdSubstE t
+type family XConcatE t
 
 data SetCommand s t = 
   SetSetting (Maybe Scope) (Maybe Export) (VarDef s t) (Args s t)
@@ -103,19 +187,25 @@ data SetCommand s t =
   -- ^ The /set/ builtin command in erase mode
   | SetHelp
   -- ^ The /set/ builtin command in help mode
-  deriving (Eq,Ord,Show,Functor,Generic)
+  deriving (Generic)
 
 -- | Variable identifiers
-data VarIdent s t = VarIdent t NText
-  deriving (Eq,Ord,Show,Functor,Generic)
+data VarIdent s t = VarIdent (XVarIdent t) NText
+  deriving (Generic)
+
+type family XVarIdent t
 
 -- | Function identifiers
-data FunIdent s t = FunIdent t NText
-  deriving (Eq,Ord,Show,Functor,Generic)
+data FunIdent s t = FunIdent (XFunIdent t) NText
+  deriving (Generic)
+
+type family XFunIdent t
 
 -- | Command name identifiers
-data CmdIdent s t = CmdIdent t NText
-  deriving (Eq,Ord,Show,Functor,Generic)
+data CmdIdent s t = CmdIdent (XCmdIdent t) NText
+  deriving (Generic)
+
+type family XCmdIdent t
 
 
 -- | Type of a redirection, the first file descriptor
@@ -129,8 +219,8 @@ data Redirect s t =
   RedirectClose Fd
   | RedirectIn Fd ( Either Fd (Expr s t) )
   | RedirectOut Fd ( Either Fd (FileMode,Expr s t) )
-  deriving (Eq,Ord,Show,Functor,Generic)
-
+  deriving (Generic)
+-- TODO: Change to Redirect s e = ... [Expr s t] -> [e] and move to Prim
 
 -- | A variable reference starting with a name,
 --   which may be
@@ -139,30 +229,30 @@ data Redirect s t =
 --   * a variable identifier
 --
 --   potentially followed by an index expression.
-data VarRef s t = VarRef t
+data VarRef s t = VarRef (XVarRef t)
   ( Either (VarRef s t) (VarIdent s t) )
   ( Ref (Expr s t) )
-  deriving (Eq,Ord,Show,Generic)
+  deriving (Generic)
 
-instance Functor (VarRef s) where
-  fmap f (VarRef t a b) = 
-    VarRef (f t)
-    ( bimap (fmap f) (fmap f) a )
-    ( fmap (map (fmap $ fmap f)) b )
+type family XVarRef t
 
 -- | A variable definition expression, belonging to
 --   the set builtin.
 --
 --   The only difference from 'VarRef'
 --   is that the name must be a statically known identifier.
-data VarDef s t = VarDef t
+data VarDef s t = VarDef (XVarDef t)
   ( VarIdent s t )
   ( Ref (Expr s t) )
-  deriving (Eq,Ord,Show,Functor,Generic)
+  deriving (Generic)
+
+type family XVarDef t
 
 -- | A command reference, given by a piece of fish code and
 --   an optional index expression.
-data CmdRef s t = CmdRef t (Prog s t) (Ref (Expr s t))
-  deriving (Eq,Ord,Show,Functor,Generic)
+data CmdRef s t = CmdRef (XCmdRef t) (Prog s t) (Ref (Expr s t))
+  deriving (Generic)
+
+type family XCmdRef t
 
 
