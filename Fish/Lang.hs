@@ -54,7 +54,7 @@ import qualified Data.Text as T
 import Data.NText
 import Data.Bifunctor
 import GHC.Generics
-import GHC.Types (Constraint)
+import GHC.Exts (Constraint)
 
 import Fish.Lang.Prim
 
