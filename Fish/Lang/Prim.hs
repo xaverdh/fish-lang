@@ -44,4 +44,19 @@ data Indexing i = Index i | Range i i
 --   of a list of indices / index ranges.
 type Ref i = Maybe [Indexing i]
 
+-- | Type of a redirection, the first file descriptor
+--   is the fd being redirected, the second part is
+--   the target.
+--
+--   It can be either another fd or an expression for a file,
+--   in which case the boolean tells us whether the file 
+--   should be overwritten (False) or appended to (True).
+data Redirect e =
+  RedirectClose Fd
+  | RedirectIn Fd ( Either Fd e )
+  | RedirectOut Fd ( Either Fd (FileMode,e) )
+  deriving (Eq,Ord,Show,Functor,Generic)
+
+
+
 

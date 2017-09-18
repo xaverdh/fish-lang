@@ -127,7 +127,7 @@ data Stmt s t =
   | NotSt (XNotSt t) (Stmt s t)
   -- ^ /not/ statement modifier
   | RedirectedSt (XRedirectedSt t) (Stmt s t)
-                 ( N.NonEmpty (Redirect s t) )
+                 ( N.NonEmpty (Redirect (Expr s t)) )
   -- ^ A 'Stmt', annotated with redirections
   deriving (Generic)
 
@@ -206,21 +206,6 @@ data CmdIdent s t = CmdIdent (XCmdIdent t) NText
   deriving (Generic)
 
 type family XCmdIdent t
-
-
--- | Type of a redirection, the first file descriptor
---   is the fd being redirected, the second part is
---   the target.
---
---   It can be either another fd or a file,
---   in which case the boolean tells us whether it should
---   be overwritten (False) or appended to (True).
-data Redirect s t = 
-  RedirectClose Fd
-  | RedirectIn Fd ( Either Fd (Expr s t) )
-  | RedirectOut Fd ( Either Fd (FileMode,Expr s t) )
-  deriving (Generic)
--- TODO: Change to Redirect s e = ... [Expr s t] -> [e] and move to Prim
 
 -- | A variable reference starting with a name,
 --   which may be

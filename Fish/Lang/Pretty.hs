@@ -10,7 +10,6 @@ import Fish.Lang
 import Text.PrettyPrint.GenericPretty
 import GHC.Generics
 
-
 instance Out Void where
   doc = const mempty
   docPrec = const $ const mempty
@@ -25,7 +24,7 @@ instance (Out s,ForallX Out t) => Out (SetCommand s t)
 instance (Out s,ForallX Out t) => Out (VarIdent s t)
 instance (Out s,ForallX Out t) => Out (FunIdent s t)
 instance (Out s,ForallX Out t) => Out (CmdIdent s t)
-instance (Out s,ForallX Out t) => Out (Redirect s t)
+instance (Out e) => Out (Redirect e)
 instance (Out s,ForallX Out t) => Out (VarRef s t)
 instance (Out s,ForallX Out t) => Out (VarDef s t)
 instance (Out s,ForallX Out t) => Out (CmdRef s t)

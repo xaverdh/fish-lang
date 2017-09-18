@@ -11,7 +11,6 @@ module Fish.Untagged.Lang
   , VarIdent(..)
   , FunIdent(..)
   , CmdIdent(..)
-  , Redirect(..)
   , VarRef(..)
   , VarDef(..)
   , CmdRef(..) )
@@ -95,7 +94,7 @@ data Stmt s =
   -- ^ /or/ statement modifier
   | NotSt (Stmt s)
   -- ^ /not/ statement modifier
-  | RedirectedSt (Stmt s) (N.NonEmpty (Redirect s))
+  | RedirectedSt (Stmt s) (N.NonEmpty (Redirect (Expr s)))
   -- ^ A 'Stmt', annotated with redirections
   deriving (Eq,Ord,Show,Generic)
 
@@ -114,7 +113,7 @@ instance RemovableTags (Tagged.Stmt s) (Stmt s) where
     Tagged.AndSt _ stmt -> AndSt (untag stmt)
     Tagged.OrSt _ stmt -> OrSt (untag stmt)
     Tagged.NotSt _ stmt -> NotSt (untag stmt)
-    Tagged.RedirectedSt _ stmt redirs -> RedirectedSt (untag stmt) (fmap untag redirs)
+    Tagged.RedirectedSt _ stmt redirs -> RedirectedSt (untag stmt) (fmap (fmap untag) redirs)
 
   tagUnit a = case a of
     CommentSt txt -> Tagged.CommentSt () txt
@@ -129,7 +128,7 @@ instance RemovableTags (Tagged.Stmt s) (Stmt s) where
     AndSt stmt -> Tagged.AndSt () (tagUnit stmt)
     OrSt stmt -> Tagged.OrSt () (tagUnit stmt)
     NotSt stmt -> Tagged.NotSt () (tagUnit stmt)
-    RedirectedSt stmt redirs -> Tagged.RedirectedSt () (tagUnit stmt) (fmap tagUnit redirs)
+    RedirectedSt stmt redirs -> Tagged.RedirectedSt () (tagUnit stmt) (fmap (fmap tagUnit) redirs)
 
 
 data Expr s =
@@ -233,21 +232,8 @@ instance RemovableTags (Tagged.CmdIdent s) (CmdIdent s) where
   untag (Tagged.CmdIdent _ s) = (CmdIdent s)
   tagUnit (CmdIdent s) = Tagged.CmdIdent () s
 
-
--- | Type of a redirection, the first file descriptor
---   is the fd being redirected, the second part is
---   the target.
---
---   It can be either another fd or a file,
---   in which case the boolean tells us whether it should
---   be overwritten (False) or appended to (True).
-data Redirect s = 
-  RedirectClose Fd
-  | RedirectIn Fd ( Either Fd (Expr s) )
-  | RedirectOut Fd ( Either Fd (FileMode,Expr s) )
-  deriving (Eq,Ord,Show,Generic)
-
-instance RemovableTags (Tagged.Redirect s) (Redirect s) where
+{-
+instance RemovableTags (Tagged.Redirect e) (Redirect e) where
   untag a = case a of
     Tagged.RedirectClose fd -> RedirectClose fd
     Tagged.RedirectIn fd fd_or_e -> RedirectIn fd (second untag fd_or_e)
@@ -257,7 +243,7 @@ instance RemovableTags (Tagged.Redirect s) (Redirect s) where
     RedirectClose fd -> Tagged.RedirectClose fd
     RedirectIn fd fd_or_e -> Tagged.RedirectIn fd (second tagUnit fd_or_e)
     RedirectOut fd fd_or_target -> Tagged.RedirectOut fd (second (second tagUnit) fd_or_target)
-
+-}
 
 -- | A variable reference starting with a name,
 --   which may be
