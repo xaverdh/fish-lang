@@ -10,7 +10,6 @@ module Fish.Lang
   , VarIdent(..)
   , FunIdent(..)
   , CmdIdent(..)
-  , Redirect(..)
   , VarRef(..)
   , VarDef(..)
   , CmdRef(..) )
