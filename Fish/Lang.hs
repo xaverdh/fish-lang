@@ -67,7 +67,7 @@ data Stmt s t =
   -- ^ /or/ statement modifier
   | NotSt t (Stmt s t)
   -- ^ /not/ statement modifier
-  | RedirectedSt t (Stmt s t) (N.NonEmpty (Redirect s t))
+  | RedirectedSt t (Stmt s t) (N.NonEmpty (Redirect (Expr s t)))
   -- ^ A 'Stmt', annotated with redirections
   deriving (Eq,Ord,Show,Functor,Generic)
 
@@ -116,21 +116,6 @@ data FunIdent s t = FunIdent t NText
 -- | Command name identifiers
 data CmdIdent s t = CmdIdent t NText
   deriving (Eq,Ord,Show,Functor,Generic)
-
-
--- | Type of a redirection, the first file descriptor
---   is the fd being redirected, the second part is
---   the target.
---
---   It can be either another fd or a file,
---   in which case the boolean tells us whether it should
---   be overwritten (False) or appended to (True).
-data Redirect s t = 
-  RedirectClose Fd
-  | RedirectIn Fd ( Either Fd (Expr s t) )
-  | RedirectOut Fd ( Either Fd (FileMode,Expr s t) )
-  deriving (Eq,Ord,Show,Functor,Generic)
-
 
 -- | A variable reference starting with a name,
 --   which may be
