@@ -17,11 +17,10 @@ data Fd =
   | Fd5 | Fd6 | Fd7 | Fd8 | Fd9
   deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
--- | Glob pattern, can be one of * ** ?
+-- | Glob pattern, can be one of * **
 data Glob =
   StarGl
   | DiStarGl
-  | QMarkGl
   deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
 -- | Export flag.
