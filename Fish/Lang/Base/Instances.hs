@@ -28,7 +28,6 @@ type instance XNotSt Base = Void
 type instance XRedirectedSt Base = Void
 type instance XStringE Base = Void
 type instance XGlobE Base = Void
-type instance XProcE Base = Void
 type instance XHomeDirE Base = Void
 type instance XVarRefE Base = Void
 type instance XBracesE Base = Void

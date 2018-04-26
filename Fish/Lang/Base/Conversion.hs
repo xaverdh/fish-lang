@@ -52,7 +52,6 @@ instance ToBase (Expr s) where
   toBase = \case
     StringE _ s -> StringEB s
     GlobE _ g -> GlobEB g
-    ProcE _ e -> ProcEB $ toBase e
     HomeDirE _ -> HomeDirEB
     VarRefE _ b vref -> VarRefEB b $ toBase vref
     BracesE _ exprs -> BracesEB $ toBase <$> exprs

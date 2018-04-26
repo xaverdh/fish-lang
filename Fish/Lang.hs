@@ -35,7 +35,6 @@ module Fish.Lang
   , XRedirectedSt
   , XStringE
   , XGlobE
-  , XProcE
   , XHomeDirE
   , XVarRefE
   , XBracesE
@@ -66,11 +65,11 @@ type ForallX (f :: * -> Constraint) t =
   , f (XWhileSt t), f (XForSt t), f (XIfSt t)
   , f (XSwitchSt t), f (XBeginSt t), f (XAndSt t)
   , f (XOrSt t), f (XNotSt t), f (XRedirectedSt t)
-  , f (XStringE t), f (XGlobE t), f (XProcE t)
-  , f (XHomeDirE t), f (XVarRefE t), f (XBracesE t)
-  , f (XCmdSubstE t), f (XConcatE t), f (XVarIdent t)
-  , f (XFunIdent t), f (XCmdIdent t), f (XVarRef t)
-  , f (XVarDef t), f (XCmdRef t) )
+  , f (XStringE t), f (XGlobE t), f (XHomeDirE t)
+  , f (XVarRefE t), f (XBracesE t), f (XCmdSubstE t)
+  , f (XConcatE t), f (XVarIdent t), f (XFunIdent t)
+  , f (XCmdIdent t), f (XVarRef t) , f (XVarDef t)
+  , f (XCmdRef t) )
 
 data Prog s t = Prog (XProg t) [CompStmt s t]
   deriving (Generic)
@@ -150,8 +149,6 @@ data Expr s t =
   -- ^ String expressions, can be \"..\"-type, \'..\'-type or plain strings.
   | GlobE (XGlobE t) Glob
   -- ^ Glob patterns.
-  | ProcE (XProcE t) (Expr s t)
-  -- ^ Process expansion, i.e. %last .
   | HomeDirE (XHomeDirE t)
   -- ^ Home directory expansion, i.e. ~ .
   | VarRefE (XVarRefE t) Bool (VarRef s t)
@@ -167,7 +164,6 @@ data Expr s t =
 
 type family XStringE t
 type family XGlobE t
-type family XProcE t
 type family XHomeDirE t
 type family XVarRefE t
 type family XBracesE t

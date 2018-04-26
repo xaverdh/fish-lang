@@ -101,10 +101,6 @@ pattern GlobEB :: Glob -> Expr s Base
 pattern GlobEB g <- GlobE _ g
   where GlobEB g = GlobE void g
 
-pattern ProcEB :: Expr s Base -> Expr s Base
-pattern ProcEB e <- ProcE _ e
-  where ProcEB e = ProcE void e
-
 pattern HomeDirEB :: Expr s Base
 pattern HomeDirEB <- HomeDirE _
   where HomeDirEB = HomeDirE void
