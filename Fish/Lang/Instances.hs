@@ -1,4 +1,4 @@
-{-# LANGUAGE StandaloneDeriving, FlexibleContexts #-}
+{-# LANGUAGE StandaloneDeriving, FlexibleContexts, UndecidableInstances #-}
 module Fish.Lang.Instances where
 
 import Fish.Lang
