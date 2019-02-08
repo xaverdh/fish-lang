@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, UndecidableInstances #-}
 module Fish.Lang.Pretty
   ()
 where

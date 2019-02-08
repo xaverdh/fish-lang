@@ -29,7 +29,7 @@ library
   other-extensions:    FlexibleContexts, StandaloneDeriving, LambdaCase
   other-extensions:    DeriveGeneric, DeriveFunctor
   
-  build-depends:       base               >=4.9 && <4.12
+  build-depends:       base               >=4.9 && <4.13
   build-depends:       text               >=1.2 && <1.3
   build-depends:       bytestring         >= 0.10.8 && < 0.11
   build-depends:       GenericPretty      >= 1.2.1 && < 1.3
