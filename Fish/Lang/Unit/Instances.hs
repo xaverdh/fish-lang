@@ -4,13 +4,12 @@ module Fish.Lang.Unit.Instances where
 import Fish.Lang
 
 type instance XProg () = ()
-type instance XArgs () = ()
+type instance XExprs () = ()
 type instance XSimple () = ()
 type instance XPiped () = ()
 type instance XForked () = ()
 type instance XCommentSt () = ()
 type instance XCmdSt () = ()
-type instance XSetSt () = ()
 type instance XFunctionSt () = ()
 type instance XWhileSt () = ()
 type instance XForSt () = ()
@@ -30,9 +29,7 @@ type instance XCmdSubstE () = ()
 type instance XConcatE () = ()
 type instance XVarIdent () = ()
 type instance XFunIdent () = ()
-type instance XCmdIdent () = ()
 type instance XVarRef () = ()
-type instance XVarDef () = ()
 type instance XCmdRef () = ()
 
 

@@ -14,8 +14,6 @@ instance Out a => Out (N.NonEmpty a)
 instance Out i => Out (Indexing i)
 instance Out FileMode
 instance Out Fd
-instance Out Export
-instance Out Scope
 instance Out Glob
 
 instance Out T.Text where

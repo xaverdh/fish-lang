@@ -9,13 +9,12 @@ import Data.Void
 data Base
 
 type instance XProg Base = Void
-type instance XArgs Base = Void
+type instance XExprs Base = Void
 type instance XSimple Base = Void
 type instance XPiped Base = Void
 type instance XForked Base = Void
 type instance XCommentSt Base = Void
 type instance XCmdSt Base = Void
-type instance XSetSt Base = Void
 type instance XFunctionSt Base = Void
 type instance XWhileSt Base = Void
 type instance XForSt Base = Void
@@ -35,9 +34,7 @@ type instance XCmdSubstE Base = Void
 type instance XConcatE Base = Void
 type instance XVarIdent Base = Void
 type instance XFunIdent Base = Void
-type instance XCmdIdent Base = Void
 type instance XVarRef Base = Void
-type instance XVarDef Base = Void
 type instance XCmdRef Base = Void
 
 

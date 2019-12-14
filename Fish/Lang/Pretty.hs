@@ -16,16 +16,13 @@ instance Out Void where
   docList = const mempty
 
 instance (Out s,ForallX Out t) => Out (Prog s t)
-instance (Out s,ForallX Out t) => Out (Args s t)
+instance (Out s,ForallX Out t) => Out (Exprs s t)
 instance (Out s,ForallX Out t) => Out (CompStmt s t)
 instance (Out s,ForallX Out t) => Out (Stmt s t)
 instance (Out s,ForallX Out t) => Out (Expr s t)
-instance (Out s,ForallX Out t) => Out (SetCommand s t)
 instance (Out s,ForallX Out t) => Out (VarIdent s t)
 instance (Out s,ForallX Out t) => Out (FunIdent s t)
-instance (Out s,ForallX Out t) => Out (CmdIdent s t)
 instance (Out e) => Out (Redirect e)
 instance (Out s,ForallX Out t) => Out (VarRef s t)
-instance (Out s,ForallX Out t) => Out (VarDef s t)
 instance (Out s,ForallX Out t) => Out (CmdRef s t)
 

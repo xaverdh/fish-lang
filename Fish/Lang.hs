@@ -3,26 +3,22 @@
 module Fish.Lang
   ( module Fish.Lang.Prim
   , Prog(..)
-  , Args(..)
+  , Exprs(..)
   , CompStmt(..)
   , Stmt(..)
   , Expr(..)
-  , SetCommand(..)
   , VarIdent(..)
   , FunIdent(..)
-  , CmdIdent(..)
   , VarRef(..)
-  , VarDef(..)
   , CmdRef(..)
   , ForallX(..)
   , XProg
-  , XArgs
+  , XExprs
   , XSimple
   , XPiped
   , XForked
   , XCommentSt
   , XCmdSt
-  , XSetSt
   , XFunctionSt
   , XWhileSt
   , XForSt
@@ -42,9 +38,7 @@ module Fish.Lang
   , XConcatE
   , XVarIdent
   , XFunIdent
-  , XCmdIdent
   , XVarRef
-  , XVarDef
   , XCmdRef )
 where
 
@@ -59,17 +53,16 @@ import Fish.Lang.Prim
 
 
 type ForallX (f :: * -> Constraint) t =
-  ( f (XProg t), f (XArgs t), f (XSimple t)
+  ( f (XProg t), f (XExprs t), f (XSimple t)
   , f (XPiped t), f (XForked t), f (XCommentSt t)
-  , f (XCmdSt t), f (XSetSt t), f (XFunctionSt t)
+  , f (XCmdSt t), f (XFunctionSt t)
   , f (XWhileSt t), f (XForSt t), f (XIfSt t)
   , f (XSwitchSt t), f (XBeginSt t), f (XAndSt t)
   , f (XOrSt t), f (XNotSt t), f (XRedirectedSt t)
   , f (XStringE t), f (XGlobE t), f (XHomeDirE t)
   , f (XVarRefE t), f (XBracesE t), f (XCmdSubstE t)
   , f (XConcatE t), f (XVarIdent t), f (XFunIdent t)
-  , f (XCmdIdent t), f (XVarRef t) , f (XVarDef t)
-  , f (XCmdRef t) )
+  , f (XVarRef t) , f (XCmdRef t) )
 
 data Prog s t = Prog (XProg t) [CompStmt s t]
   deriving (Generic)
@@ -77,10 +70,10 @@ data Prog s t = Prog (XProg t) [CompStmt s t]
 type family XProg t
 
 -- | A list of arguments, belonging to a command.
-data Args s t = Args (XArgs t) [Expr s t]
+data Exprs s t = Exprs (XExprs t) [Expr s t]
   deriving (Generic)
 
-type family XArgs t
+type family XExprs t
 
 -- | A composite statement.
 data CompStmt s t =
@@ -100,15 +93,13 @@ type family XForked t
 data Stmt s t = 
   CommentSt (XCommentSt t) T.Text
   -- ^ A /comment/
-  | CmdSt (XCmdSt t) (CmdIdent s t) (Args s t)
+  | CmdSt (XCmdSt t) (N.NonEmpty (Expr s t))
   -- ^ A /shell command/, has an identifier and arguments
-  | SetSt (XSetSt t) (SetCommand s t)
-  -- ^ The /set/ builtin command
-  | FunctionSt (XFunctionSt t) (FunIdent s t) (Args s t) (Prog s t)
+  | FunctionSt (XFunctionSt t) (FunIdent s t) (Exprs s t) (Prog s t)
   -- ^ The /function/ builtin command
   | WhileSt (XWhileSt t) (Stmt s t) (Prog s t)
   -- ^ /while/ loops
-  | ForSt (XForSt t) (VarIdent s t) (Args s t) (Prog s t)
+  | ForSt (XForSt t) (VarIdent s t) (Exprs s t) (Prog s t)
   -- ^ /for/ loops
   | IfSt (XIfSt t) ( N.NonEmpty (Stmt s t,Prog s t) )
                    ( Maybe (Prog s t) )
@@ -131,7 +122,6 @@ data Stmt s t =
 
 type family XCommentSt t
 type family XCmdSt t
-type family XSetSt t
 type family XFunctionSt t
 type family XWhileSt t
 type family XForSt t
@@ -153,7 +143,7 @@ data Expr s t =
   -- ^ Home directory expansion, i.e. ~ .
   | VarRefE (XVarRefE t) Bool (VarRef s t)
   -- ^ Variable references, i.e. $a. The boolean
-  -- keeps track of whether the variable occured in \"\"-quotes.
+  -- keeps track of whether the variable occured in a quoted context.
   | BracesE (XBracesE t) [Expr s t]
   -- ^ Braces expansion, i.e. {..}.
   | CmdSubstE (XCmdSubstE t) (CmdRef s t)
@@ -170,20 +160,6 @@ type family XBracesE t
 type family XCmdSubstE t
 type family XConcatE t
 
-data SetCommand s t = 
-  SetSetting (Maybe Scope) (Maybe Export) (VarDef s t) (Args s t)
-  -- ^ The /set/ builtin command in setting mode
-  | SetList (Maybe Scope) (Maybe Export) Bool
-  -- ^ The /set/ builtin command in list mode,
-  --   boolean corresponds to the "-n" flag.
-  | SetQuery (Maybe Scope) (Maybe Export) (Args s t)
-  -- ^ The /set/ builtin command in query mode
-  | SetErase (Maybe Scope) (N.NonEmpty (VarDef s t))
-  -- ^ The /set/ builtin command in erase mode
-  | SetHelp
-  -- ^ The /set/ builtin command in help mode
-  deriving (Generic)
-
 -- | Variable identifiers
 data VarIdent s t = VarIdent (XVarIdent t) NText
   deriving (Generic)
@@ -195,12 +171,6 @@ data FunIdent s t = FunIdent (XFunIdent t) NText
   deriving (Generic)
 
 type family XFunIdent t
-
--- | Command name identifiers
-data CmdIdent s t = CmdIdent (XCmdIdent t) NText
-  deriving (Generic)
-
-type family XCmdIdent t
 
 -- | A variable reference starting with a name,
 --   which may be
@@ -215,18 +185,6 @@ data VarRef s t = VarRef (XVarRef t)
   deriving (Generic)
 
 type family XVarRef t
-
--- | A variable definition expression, belonging to
---   the set builtin.
---
---   The only difference from 'VarRef'
---   is that the name must be a statically known identifier.
-data VarDef s t = VarDef (XVarDef t)
-  ( VarIdent s t )
-  ( Ref (Expr s t) )
-  deriving (Generic)
-
-type family XVarDef t
 
 -- | A command reference, given by a piece of fish code and
 --   an optional index expression.

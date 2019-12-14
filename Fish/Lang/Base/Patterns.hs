@@ -15,9 +15,9 @@ pattern ProgB :: [CompStmt s Base] -> Prog s Base
 pattern ProgB stmts <- Prog _ stmts
   where ProgB stmts = Prog void stmts
 
-pattern ArgsB :: [Expr s Base] -> Args s Base
-pattern ArgsB exprs <- Args _ exprs
-  where ArgsB exprs = Args void exprs
+pattern ExprsB :: [Expr s Base] -> Exprs s Base
+pattern ExprsB exprs <- Exprs _ exprs
+  where ExprsB exprs = Exprs void exprs
 
 pattern SimpleB :: Stmt s Base -> CompStmt s Base
 pattern SimpleB stmt <- Simple _ stmt
@@ -36,16 +36,8 @@ pattern CommentStB :: T.Text -> Stmt s Base
 pattern CommentStB text <- CommentSt _ text
   where CommentStB text = CommentSt void text
 
-pattern CmdStB :: CmdIdent s Base -> Args s Base -> Stmt s Base
-pattern CmdStB ident args <- CmdSt _ ident args
-  where CmdStB ident args = CmdSt void ident args
-
-pattern SetStB :: SetCommand s Base -> Stmt s Base
-pattern SetStB cmd <- SetSt _ cmd
-  where SetStB cmd = SetSt void cmd
-
 pattern FunctionStB :: FunIdent s Base
-  -> Args s Base -> Prog s Base -> Stmt s Base
+  -> Exprs s Base -> Prog s Base -> Stmt s Base
 pattern FunctionStB ident args stmt <-
   FunctionSt _ ident args stmt
   where FunctionStB ident args stmt = FunctionSt void ident args stmt
@@ -55,7 +47,7 @@ pattern WhileStB stmt prog <- WhileSt _ stmt prog
   where WhileStB stmt prog = WhileSt void stmt prog
 
 pattern ForStB :: VarIdent s Base
-  -> Args s Base -> Prog s Base -> Stmt s Base
+  -> Exprs s Base -> Prog s Base -> Stmt s Base
 pattern ForStB ident args prog <- ForSt _ ident args prog
   where ForStB ident args prog = ForSt void ident args prog
 
@@ -129,20 +121,11 @@ pattern FunIdentB :: NText -> FunIdent s Base
 pattern FunIdentB ntext <- FunIdent _ ntext
   where FunIdentB ntext = FunIdent void ntext
 
-pattern CmdIdentB :: NText -> CmdIdent s Base
-pattern CmdIdentB ntext <- CmdIdent _ ntext 
-  where CmdIdentB ntext = CmdIdent void ntext
-
 pattern VarRefB :: Either (VarRef s Base) (VarIdent s Base)
   -> Ref (Expr s Base) -> VarRef s Base
 pattern VarRefB vref_or_ident ref <-
   VarRef _ vref_or_ident ref
   where VarRefB vref_or_ident ref = VarRef void vref_or_ident ref
-
-pattern VarDefB :: VarIdent s Base
-  -> Ref (Expr s Base) -> VarDef s Base
-pattern VarDefB ident ref <- VarDef _ ident ref
-  where VarDefB ident ref = VarDef void ident ref
 
 pattern CmdRefB :: Prog s Base
   -> Ref (Expr s Base) -> CmdRef s Base

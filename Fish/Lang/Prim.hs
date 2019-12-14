@@ -23,17 +23,6 @@ data Glob =
   | DiStarGl
   deriving (Eq,Ord,Show,Bounded,Enum,Generic)
 
--- | Export flag.
-data Export = Export | UnExport
-  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
-
--- | A variable scope.
-data Scope =
-  ScopeLocal
-  | ScopeGlobal
-  | ScopeUniversal
-  deriving (Eq,Ord,Show,Bounded,Enum,Generic)
-
 -- | An Index from an [..] index expression.
 --   Can be either a single index or an index range.
 data Indexing i = Index i | Range i i
